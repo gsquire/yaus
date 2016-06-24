@@ -26,6 +26,8 @@ use url::form_urlencoded;
 use std::env;
 use std::sync::Mutex;
 
+const HOST: &'static str = "http://yaus.pw/";
+
 lazy_static! {
     static ref DB_CONN: Mutex<Connection> = {
         let db = env::var("SHORT_DB").unwrap();
@@ -56,8 +58,7 @@ fn create_shortened_url(long_url: &str) -> IronResult<Response> {
     db.execute("INSERT INTO urls VALUES (NULL, $1, $2, $3)",
         &[&timestamp, &long_url, &&locator[0..7]]).unwrap();
 
-    // TODO: update this status.
-    Ok(Response::with((Status::Ok, &locator[0..7])))
+    Ok(Response::with((Status::Ok, [HOST, &locator[0..7]].join(""))))
 }
 
 /// Given a long URL, see if it already exists in the table, else create an entry and return
@@ -74,7 +75,7 @@ fn check_or_shorten_url(long_url: &str) -> IronResult<Response> {
         let mut row = stmt.query_map::<String, _>(&[&long_url], |r| r.get(0)).unwrap();
 
         if let Some(l) = row.next() {
-            return Ok(Response::with((Status::Ok, l.unwrap())));
+            return Ok(Response::with((Status::Created, [HOST, &l.unwrap()].join(""))));
         }
     }
     create_shortened_url(long_url)
