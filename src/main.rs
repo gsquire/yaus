@@ -1,3 +1,5 @@
+#[macro_use] extern crate lazy_static;
+
 extern crate iron;
 extern crate router;
 extern crate rusqlite;
@@ -19,30 +21,28 @@ use sha2::sha2::Sha256;
 use url::form_urlencoded;
 
 use std::env;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref DB_CONN: Mutex<Connection> = {
+        let db = env::var("SHORT_DB").unwrap();
+        let c = Connection::open(db).unwrap();
+        Mutex::new(c)
+    };
+}
 
 // TODO: make sure to share the connection. possibly with a mutex?
 // TODO: should I cache these prepared statements? make an index as well.
 // TODO: add unique constraints.
 // TODO: URL parsing validation.
-/// Attempt to open a connection to a database called "short" determined by the
-/// environment variable SHORT_DB. If it fails, open a connection in memory instead.
-fn open_short_db() -> Connection {
-    match env::var("SHORT_DB") {
-        Ok(s) => { Connection::open(s).unwrap() },
-        Err(_) => { Connection::open_in_memory().unwrap() }
-    }
-}
-
 fn create_shortened_url(long_url: &str) -> IronResult<Response> {
     let mut hash = Sha256::new();
-    let conn = open_short_db();
-
     hash.input_str(long_url);
     let locator = hash.result_str();
 
-    let mut stmt = conn.prepare("INSERT INTO urls VALUES (NULL, ?, ?, ?)").unwrap();
+    let db = DB_CONN.lock().unwrap();
     // TODO: insert a proper timestamp.
-    let _ = stmt.execute(&[&"now", &long_url, &&locator[0..7]]);
+    db.execute("INSERT INTO urls VALUES (NULL, $1, $2, $3)", &[&"now", &long_url, &&locator[0..7]]).unwrap();
 
     // TODO: update this status.
     Ok(Response::with((Status::Ok, &locator[0..7])))
@@ -54,16 +54,19 @@ fn create_shortened_url(long_url: &str) -> IronResult<Response> {
 /// A 200 means that a shortened URL already exists and has been returned. A 201
 /// response means that a new shortened URL has been created.
 fn check_or_shorten_url(long_url: &str) -> IronResult<Response> {
-    let conn = open_short_db();
-    let mut stmt = conn.prepare("SELECT locator FROM urls WHERE url = ?").unwrap();
-    // TODO: why is the generic parameter necessary?
-    let mut row = stmt.query_map::<String, _>(&[&long_url], |r| r.get(0)).unwrap();
+    // The scoping here is needed because the lock will only be released once it drops
+    // out of scope.
+    {
+        let db = DB_CONN.lock().unwrap();
+        let mut stmt = db.prepare("SELECT locator FROM urls WHERE url = (?)").unwrap();
+        // TODO: why is the generic parameter necessary?
+        let mut row = stmt.query_map::<String, _>(&[&long_url], |r| r.get(0)).unwrap();
 
-    if let Some(l) = row.next() {
-        Ok(Response::with((Status::Ok, l.unwrap())))
-    } else {
-        create_shortened_url(long_url)
+        if let Some(l) = row.next() {
+            return Ok(Response::with((Status::Ok, l.unwrap())));
+        }
     }
+    create_shortened_url(long_url)
 }
 
 /// The handler to shorten a URL.
@@ -84,8 +87,8 @@ fn shorten_handler(req: &mut Request) -> IronResult<Response> {
 /// The handler that redirects to the long URL.
 fn redirect_handler(req: &mut Request) -> IronResult<Response> {
     let locator = req.extensions.get::<Router>().unwrap().find("locator").unwrap();
-    let conn = open_short_db();
-    let mut stmt = conn.prepare("SELECT url FROM urls WHERE locator = ?").unwrap();
+    let db = DB_CONN.lock().unwrap();
+    let mut stmt = db.prepare("SELECT url FROM urls WHERE locator = (?)").unwrap();
     let mut row = stmt.query_map::<String, _>(&[&locator], |r| r.get(0)).unwrap();
     if let Some(u) = row.next() {
         let long_url = Url::parse(&u.unwrap()).unwrap();
