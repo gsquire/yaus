@@ -113,10 +113,15 @@ fn redirect_handler(req: &mut Request) -> IronResult<Response> {
     }
 }
 
+fn index_handler(_: &mut Request) -> IronResult<Response> {
+    Ok(Response::with((Status::Ok, "See https://github.com/gsquire/yaus for the API")))
+}
+
 fn main() {
     let mut router = Router::new();
     router.get("/shorten", shorten_handler);
     router.get("/:locator", redirect_handler);
+    router.get("/", index_handler);
 
     Iron::new(router).http("localhost:3000").unwrap();
 }
