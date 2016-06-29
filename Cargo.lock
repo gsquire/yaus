@@ -4,7 +4,9 @@ version = "0.1.0"
 dependencies = [
  "chrono 0.2.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "iron 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "persistent 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "r2d2 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "r2d2_sqlite 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "router 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rusqlite 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -131,11 +133,6 @@ version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "lazy_static"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "libc"
 version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -226,6 +223,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "persistent"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "iron 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "plugin 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "pkg-config"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -236,6 +242,23 @@ version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "typemap 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "r2d2"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "r2d2_sqlite"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "r2d2 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rusqlite 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
