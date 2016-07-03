@@ -9,14 +9,8 @@ It is implemented using the Iron framework with SQLite for storing the urls. The
 sitting in front as a reverse proxy as well.
 
 ### Implementation
-The binary uses a Mutex to wrap the SQLite connection. I know Iron offers a crate called
-persistent which lets you avoid this. However it is only for types that implement both Send and
-Sync and SQLite's Connection type does not. This is unfortunate in that it makes the endpoints
-blocking.
-
-If I am missing something obvious, please open a pull request or issue to fix this. I tried to
-avoid a Mutex but I think it is the only way to avoid reopening the connection every time
-it is needed.
+This app uses Iron's persistent crate to share the SQLite connection between the handlers. The
+pooling is provided by r2d2.
 
 To generate the short URL identifier it uses the first seven bytes from the SHA-2 hash of the
 original URL. Again, I may have overlooked any issues with this, but the chance of collision
