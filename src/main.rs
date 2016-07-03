@@ -60,7 +60,7 @@ fn create_shortened_url(db: &Connection, long_url: &str) -> IronResult<Response>
     let locator = hash.result_str();
 
     let timestamp = Local::now().to_rfc3339();
-    db.execute("INSERT INTO urls VALUES (NULL, $1, $2, $3)",
+    db.execute("INSERT INTO urls VALUES (NULL, ?1, ?2, ?3)",
         &[&timestamp, &long_url, &&locator[0..7]]).unwrap();
 
     Ok(Response::with((Status::Created, [HOST, &locator[0..7]].join(""))))
