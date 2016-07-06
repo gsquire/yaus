@@ -6,7 +6,6 @@ extern crate r2d2_sqlite;
 extern crate router;
 extern crate rusqlite;
 extern crate sha2;
-extern crate url;
 
 use chrono::*;
 
@@ -28,8 +27,6 @@ use rusqlite::Connection;
 
 use sha2::digest::Digest;
 use sha2::sha2::Sha256;
-
-use url::form_urlencoded;
 
 use std::env;
 
@@ -86,13 +83,12 @@ fn shorten_handler(req: &mut Request) -> IronResult<Response> {
     match req.url.query.clone() {
         None => { Ok(Response::with((Status::BadRequest, "URL missing in query"))) },
         Some(ref s) => {
-            let mut query_string = form_urlencoded::parse(s.as_bytes());
-
-            if let Some(long_url) = query_string.next() {
-                try_url!(&*long_url.1);
+            let long: Vec<&str> = s.split("url=").collect();
+            if long.len() == 2 {
+                try_url!(long[1]);
                 let pool = req.get::<Read<YausDb>>().unwrap().clone();
                 let db = pool.get().unwrap();
-                check_or_shorten_url(&db, &*long_url.1)
+                check_or_shorten_url(&db, long[1])
             } else {
                 Ok(Response::with((Status::BadRequest, "Malformed query string")))
             }

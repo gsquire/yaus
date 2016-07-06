@@ -1,6 +1,6 @@
 [package]
 name = "yaus"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 
 [dependencies]
@@ -12,4 +12,3 @@ r2d2_sqlite = "0.1.0"
 router = "0.1.1"
 rusqlite = "0.7.3"
 sha2 = "0.1.2"
-url = "1.1.1"
