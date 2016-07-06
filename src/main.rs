@@ -83,12 +83,12 @@ fn shorten_handler(req: &mut Request) -> IronResult<Response> {
     match req.url.query.clone() {
         None => { Ok(Response::with((Status::BadRequest, "URL missing in query"))) },
         Some(ref s) => {
-            let long: Vec<&str> = s.split("url=").collect();
-            if long.len() == 2 {
-                try_url!(long[1]);
+            let (k, v) = s.split_at(4);
+            if k == "url=" {
+                try_url!(v);
                 let pool = req.get::<Read<YausDb>>().unwrap().clone();
                 let db = pool.get().unwrap();
-                check_or_shorten_url(&db, long[1])
+                check_or_shorten_url(&db, v)
             } else {
                 Ok(Response::with((Status::BadRequest, "Malformed query string")))
             }
