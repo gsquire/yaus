@@ -80,7 +80,7 @@ fn check_or_shorten_url(db: &Connection, long_url: &str) -> IronResult<Response>
 
 /// The handler to shorten a URL.
 fn shorten_handler(req: &mut Request) -> IronResult<Response> {
-    match req.url.query.clone() {
+    match req.url.clone().query() {
         None => { Ok(Response::with((Status::BadRequest, "URL missing in query"))) },
         Some(ref s) => {
             let (k, v) = s.split_at(4);
@@ -98,9 +98,9 @@ fn shorten_handler(req: &mut Request) -> IronResult<Response> {
 
 /// The handler that redirects to the long URL.
 fn redirect_handler(req: &mut Request) -> IronResult<Response> {
-    let locator = req.url.path[0].clone();
     let pool = req.get::<Read<YausDb>>().unwrap().clone();
     let db = pool.get().unwrap();
+    let locator = req.url.path()[0];
     let mut stmt = db.prepare("SELECT url FROM urls WHERE locator = (?)").unwrap();
     let mut row = stmt.query_map::<String, _>(&[&locator], |r| r.get(0)).unwrap();
 
