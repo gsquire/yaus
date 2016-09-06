@@ -118,9 +118,9 @@ fn index_handler(_: &mut Request) -> IronResult<Response> {
 
 fn main() {
     let mut router = Router::new();
-    router.get("/shorten", shorten_handler);
-    router.get("/:locator", redirect_handler);
-    router.get("/", index_handler);
+    router.get("/shorten", shorten_handler, "shorten");
+    router.get("/:locator", redirect_handler, "locator");
+    router.get("/", index_handler, "index");
 
     let config = r2d2::Config::default();
     let db = env::var("SHORT_DB").unwrap();

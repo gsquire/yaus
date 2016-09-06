@@ -4,11 +4,11 @@ version = "0.2.0"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 
 [dependencies]
-chrono = "0.2.22"
+chrono = "0.2.25"
 iron = "0.4.0"
 persistent = "0.2.0"
 r2d2 = "0.7.0"
 r2d2_sqlite = "0.1.0"
-router = "0.2.0"
+router = "0.4.0"
 rusqlite = "0.7.3"
 sha2 = "0.1.2"
