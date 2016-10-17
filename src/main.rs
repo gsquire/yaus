@@ -82,7 +82,7 @@ fn check_or_shorten_url(db: &Connection, long_url: &str) -> IronResult<Response>
 fn shorten_handler(req: &mut Request) -> IronResult<Response> {
     match req.url.clone().query() {
         None => { Ok(Response::with((Status::BadRequest, "URL missing in query"))) },
-        Some(ref s) => {
+        Some(s) => {
             let (k, v) = s.split_at(4);
             if k == "url=" {
                 try_url!(v);
