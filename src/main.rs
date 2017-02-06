@@ -132,5 +132,5 @@ fn main() {
     let mut chain = Chain::new(router);
     chain.link_before(Read::<YausDb>::one(pool));
 
-    Iron::new(chain).http("localhost:9090").unwrap();
+    Iron::new(chain).http("localhost:3000").unwrap();
 }
