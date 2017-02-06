@@ -5,6 +5,7 @@ extern crate r2d2;
 extern crate r2d2_sqlite;
 extern crate router;
 extern crate rusqlite;
+extern crate rustc_serialize;
 extern crate sha2;
 
 use chrono::*;
@@ -25,8 +26,9 @@ use router::Router;
 
 use rusqlite::Connection;
 
-use sha2::digest::Digest;
-use sha2::sha2::Sha256;
+use rustc_serialize::hex::ToHex;
+
+use sha2::{Digest, Sha256};
 
 use std::env;
 
@@ -53,8 +55,8 @@ macro_rules! try_url {
 
 fn create_shortened_url(db: &Connection, long_url: &str) -> IronResult<Response> {
     let mut hash = Sha256::new();
-    hash.input_str(long_url);
-    let locator = hash.result_str();
+    hash.input(long_url.as_bytes());
+    let locator = hash.result().as_slice().to_hex();
 
     let timestamp = Local::now().to_rfc3339();
     db.execute("INSERT INTO urls VALUES (NULL, ?1, ?2, ?3)",
@@ -130,5 +132,5 @@ fn main() {
     let mut chain = Chain::new(router);
     chain.link_before(Read::<YausDb>::one(pool));
 
-    Iron::new(chain).http("localhost:3000").unwrap();
+    Iron::new(chain).http("localhost:9090").unwrap();
 }
