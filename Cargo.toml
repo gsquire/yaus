@@ -4,12 +4,12 @@ version = "0.3.0"
 authors = ["Garrett Squire <garrettsquire@gmail.com>"]
 
 [dependencies]
-chrono = "0.2"
+chrono = "0.3"
 iron = "0.5"
 persistent = "0.3"
 r2d2 = "0.7"
 r2d2_sqlite = "0.1"
 router = "0.5"
-rusqlite = "0.9"
+rusqlite = "0.11"
 rustc-serialize = "0.3"
-sha2 = "0.4"
+sha2 = "0.5"

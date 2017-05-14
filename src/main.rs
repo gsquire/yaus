@@ -54,9 +54,9 @@ macro_rules! try_url {
 }
 
 fn create_shortened_url(db: &Connection, long_url: &str) -> IronResult<Response> {
-    let mut hash = Sha256::new();
-    hash.input(long_url.as_bytes());
-    let locator = hash.result().as_slice().to_hex();
+    let mut d = Sha256::default();
+    d.input(long_url.as_bytes());
+    let locator = d.result().as_slice().to_hex();
 
     let timestamp = Local::now().to_rfc3339();
     db.execute("INSERT INTO urls VALUES (NULL, ?1, ?2, ?3)",
