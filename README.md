@@ -1,3 +1,6 @@
+**This website no longer exists, but the code will remain here. Please open an issue if you
+have any questions.**
+
 # yaus
 **Y**et **A**nother **URL** **S**hortener in Rust.
 
